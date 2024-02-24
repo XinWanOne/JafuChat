@@ -1,0 +1,4 @@
+python=C:\\Users\\white\\AppData\\Local\\Programs\\Python\\Python312\\python.exe
+main=C:\\Users\\white\\Documents\\GitHub\\chatJafu\\build\\chatJafu\\main.py
+documents=C:\\Users\\white\\Documents\\GitHub\\chatJafu\\exmples
+llm=mistral
