@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieval-based QA</title>
+    <!-- Include any CSS stylesheets here -->
+    <style>
+        body, html {
+          height: 100%;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+        }
+         h2,p {
+           margin-left: 10px;
+           margin-top: 0px;
+        }
+        .content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px;
+          background: #f0f0f0; /* Light grey background */
+        }
+        .input-container {
+          padding: 10px;
+          display: flex;
+          margin-bottom: 10px;
+          background: #ddd; /* Slightly darker grey background */
+        }
+        label {
+          align-self: center;
+        }
+        input[type="text"] {
+          display: inline-block;
+          margin-left: 10px;
+          padding: 10px;
+          flex-grow: 1;
+          box-sizing: border-box; /* Ensures padding does not increase the width */
+        }
+
+    </style>
+</head>
+<body>
+    <h2><img width="24" height="24" style="margin-top:10px;" src="{{ url_for('static', filename='images/logo.png') }}">   JafuChat ({{base}})</h2>
+
+        <p>
+            {% for link in links %}
+              <a href="{{ link.href }}">{{ link.text }}</a>
+            {% endfor %}
+           <span style="float:right;margin-right:10px">
+         <small class="text-muted">Using {{model}}</small>
+    </span>
+        </p>
+
+    <div id="answerContainer" class="content">
+        <div id="introduction" class="content">
+            <h3>Welcome to Jason's AI For You chat (JafuChat)</h3>
+            <p style="max-width: 400px;">You can ask questions for the selected directory.
+                The LLM will combine general knowledge with the content of the documents to provide the answer.
+                It will list references within the documents where possible.
+            </p>
+            <p>
+                <img src="{{ url_for('static', filename='images/big_logo.png') }}">
+            </p>
+            <p><br><br>
+                Ask a question.
+            </p>
+
+        </div>
+    </div>
+    <form id="qaForm" class="input-container">
+        <label for="query">Question:</label>
+        <input type="text" id="query" name="query" placeholder="Ask JafuChat about '{{base}}'"><br>
+        <button type="submit" id="submitButton">Submit</button>
+    </form>
+    <!-- Include any JavaScript code here -->
+    <script>
+        document.getElementById('qaForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            let query = document.getElementById('query').value.trim();
+            if (query === "") return;
+
+            disableForm();
+
+            let response = await fetch('/api/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query, base: "{{base}}" })
+            });
+
+            let data = await response.json();
+            displayAnswer(query, data.answer);
+
+            enableForm();
+        });
+
+        function disableForm() {
+            document.getElementById('query').disabled = true;
+            document.getElementById('submitButton').disabled = true;
+        }
+
+        function enableForm() {
+             document.getElementById('query').value = ''
+            document.getElementById('query').disabled = false;
+            document.getElementById('submitButton').disabled = false;
+        }
+
+        function displayAnswer(question,answer) {
+
+            let introductionContainer = document.getElementById('introduction');
+            introductionContainer.style.display= "none";
+            let answerContainer = document.getElementById('answerContainer');
+            answerContainer.innerHTML =
+             answerContainer.innerHTML + `
+                <h2>Question:</h2>
+                <p>${question}</p>
+                <h2>Answer:</h2>
+                <p>${answer}</p>
+            `;
+            answerContainer.scrollTop = answerContainer.scrollHeight;
+
+        }
+    </script>
+</body>
+</html>
