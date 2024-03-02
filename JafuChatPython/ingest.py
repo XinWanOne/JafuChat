@@ -48,7 +48,7 @@ from tqdm import tqdm
 # Import LangChain libraries for document loading, text splitting, embeddings, and vector storage
 from langchain.document_loaders import (
     CSVLoader, EverNoteLoader, PyMuPDFLoader, TextLoader,
-    UnstructuredEPubLoader, UnstructuredHTMLLoader,
+    UnstructuredEmailLoader, UnstructuredEPubLoader, UnstructuredHTMLLoader,
     UnstructuredMarkdownLoader, UnstructuredODTLoader, UnstructuredPowerPointLoader,
     UnstructuredWordDocumentLoader,
 )
@@ -59,6 +59,7 @@ from langchain.docstore.document import Document
 from constants import CHROMA_SETTINGS
 
 # Load essential environment variables for configuration
+persist_directory = os.environ.get('PERSIST_DIRECTORY', 'db')
 embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME', 'all-MiniLM-L6-v2')
 chunk_size = 500
 chunk_overlap = 50
@@ -66,7 +67,7 @@ chunk_overlap = 50
 # Mapping of file extensions to their respective document loaders
 LOADER_MAPPING = {
     ".csv": (CSVLoader, {}),
-    ".doc": (UnstructuredWordDocumentLoader, {}),
+    ".default_folder": (UnstructuredWordDocumentLoader, {}),
     ".docx": (UnstructuredWordDocumentLoader, {}),
     ".enex": (EverNoteLoader, {}),
     ".epub": (UnstructuredEPubLoader, {}),
@@ -92,9 +93,10 @@ def load_single_document(file_path: str) -> List[Document]:
 
 def load_documents(source_dir: str, ignored_files: List[str] = []) -> List[Document]:
     """Loads documents from the source directory, excluding any specified ignored files."""
+    # all_files = [glob.glob(os.path.join(source_dir, f"**/*{ext}"), recursive=True) for ext in LOADER_MAPPING]
     all_files = [glob.glob(os.path.join(source_dir, f"**/*{ext}"), recursive=True) for ext in LOADER_MAPPING]
     filtered_files = [file for sublist in all_files for file in sublist if file not in ignored_files]
-
+    print(source_dir, len(all_files), " files", all_files)
     with Pool(processes=os.cpu_count()) as pool:
         results = []
         with tqdm(total=len(filtered_files), desc='Loading documents', ncols=80) as pbar:
@@ -108,6 +110,7 @@ def process_documents(ignored_files: List[str] = [], source_directory=None) -> L
     """Processes documents by loading and splitting them into manageable chunks."""
     print(f"Loading documents from {source_directory}")
     documents = load_documents(source_directory, ignored_files)
+    print(len(documents), " docs...")
     if not documents:
         print("No new documents to load.")
         return []
@@ -140,9 +143,13 @@ def ingest_files(source_directory, persist_directory):
             print("Creating embeddings and updating vectorstore...")
             db.add_documents(texts)
     else:
-        print("Creating new vectorstore...")
+        print("Creating new vectorstore... "+persist_directory)
         texts = process_documents(source_directory=source_directory)
         if texts:
+            while len(texts) > 5000:
+                db = Chroma.from_documents(texts[:5001], embeddings, persist_directory=persist_directory)
+                texts = texts[5000:]
+                print(".")
             print("Creating embeddings...")
             db = Chroma.from_documents(texts, embeddings, persist_directory=persist_directory)
 
@@ -152,6 +159,5 @@ def ingest_files(source_directory, persist_directory):
     else:
         print("No documents to ingest.")
 
-
 if __name__ == '__main__':
-    ingest_files("C:/chatWithJafu/document")
+    ingest_files("C:/Users/white/Documents/GitHub/chatJafu/exmples/demo","C:/Users/white/Documents/GitHub/chatJafu/exmples/demo/_db")
