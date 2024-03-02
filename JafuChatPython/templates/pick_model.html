@@ -43,44 +43,34 @@
 </head>
 <body>
     <h2><img width="24" height="24" style="margin-top:10px;" src="{{ url_for('static', filename='images/logo.png') }}">
-        JafuChat ({{base}})</h2>
+        Select Model</h2>
+    <h2>(currently using {{model}})</h2>
 
-        <p>
-            {% for link in links %}
-              <a href="{{ link.href }}">{{ link.text }}</a>
-            {% endfor %}
-           <span style="float:right;margin-right:10px">
-
-
-              <small class="text-muted">
-             <a href="./?settings=model">Using</a>
-
-             {{model}}</small>
-
-
-    </span>
-        </p>
 
     <div id="answerContainer" class="content">
         <div id="introduction" class="content">
-            <h3>Welcome to Jason's AI For You chat (JafuChat)</h3>
-            <p style="max-width: 400px;">You can ask questions for the selected directory.
-                The LLM will combine general knowledge with the content of the documents to provide the answer.
-                It will list references within the documents where possible.
+            <h3>Theses are the models loaded into Ollama</h3>
+            <p style="max-width: 400px;"> Select one that one:
             </p>
             <p>
-                <img src="{{ url_for('static', filename='images/big_logo.png') }}">
+                 <ul>
+                {% for m in models %}
+                 <li> {{ m.name }} {{ m.size }} </li>
+               {% endfor %}
+             </ul>
             </p>
-            <p><br><br>
-                Ask a question.
-            </p>
-
         </div>
     </div>
-    <form id="qaForm" class="input-container">
-        <label for="query">Question:</label>
-        <input type="text" id="query" name="query" placeholder="Ask JafuChat about '{{base}}'"><br>
-        <button type="submit" id="submitButton">Submit</button>
+     <form method="POST">
+        <select name="name">
+            {% for m in models %}
+                <option value="{{  m.name }}">{{  m.name }} {{  m.size }}</option>
+            {% endfor %}
+        </select>
+          {% if model %}
+        <p>You selected: {{ model }}</p>
+    {% endif %}
+        <button type="submit">Submit</button>
     </form>
     <!-- Include any JavaScript code here -->
     <script>

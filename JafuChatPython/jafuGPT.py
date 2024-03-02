@@ -5,14 +5,10 @@ from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.llms import Ollama
+from configuration import get_llm, get_model, get_db, get_root_dir
+
 import os
 import time
-
-# Options include various models like "mistral", "dolphin-mixtral", "tinyllama", "llama2", "llava"
-LLM_MODEL = "mistral"
-
-# Environment variables are used to configure the model, embeddings, and storage details dynamically.
-model = os.environ.get("MODEL", LLM_MODEL)
 
 # Define the embeddings model to use for creating semantic embeddings of the texts.
 embeddings_model_name = os.environ.get("EMBEDDINGS_MODEL_NAME", "all-MiniLM-L6-v2")
@@ -22,7 +18,7 @@ target_source_chunks = int(os.environ.get('TARGET_SOURCE_CHUNKS', 4))
 debug = False
 
 
-def run_privateGPT(source_directory,persist_directory):
+def run_private_gpt(source_directory, persist_directory):
     # Initialize the embeddings using HuggingFace's models
     embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
 
@@ -33,7 +29,7 @@ def run_privateGPT(source_directory,persist_directory):
     retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
 
     # Initialize the large language model (LLM) without any callbacks
-    llm = Ollama(model=model, callbacks=[])
+    llm = Ollama(model=get_model(), callbacks=[])
 
     # Set up the RetrievalQA chain with the LLM, retriever, and specify to return source documents
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=True)
@@ -61,7 +57,7 @@ def run_privateGPT(source_directory,persist_directory):
         print(answer)
         print('______________________________________')
         for document in docs:
-            print(">",document.metadata["source"],"pg:",document.metadata["page"])
+            print(">", document.metadata["source"], "pg:", document.metadata["page"])
 
         # If in debug mode, print the source documents that were used to generate the answer
         if debug:
@@ -72,13 +68,6 @@ def run_privateGPT(source_directory,persist_directory):
 
 llm = None
 retriever = None
-base_data = "demo"
-
-base_data_store = "C:/Users/white/Documents/GitHub/chatJafu/exmples/"
-
-
-def get_db(base):
-    return base_data_store+base+"/_db"
 
 
 def setup_llm(base):
@@ -91,7 +80,7 @@ def setup_llm(base):
     retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
     # activate/deactivate the streaming StdOut callback for LLMs
 
-    llm = Ollama(model=model, callbacks=[])
+    llm = Ollama(model=get_model(), callbacks=[])
 
 
 def get_answer_from_gpt(query, base):
@@ -106,7 +95,7 @@ def get_answer_from_gpt(query, base):
     retriever = db.as_retriever(search_kwargs={"k": target_source_chunks})
 
     # Initialize the large language model (LLM) without any callbacks
-    llm = Ollama(model=model, callbacks=[])
+    llm = Ollama(model=get_model(), callbacks=[])
 
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=True)
 
@@ -118,27 +107,17 @@ def get_answer_from_gpt(query, base):
     return answer, docs
 
 
-def get_base_dir():
-    return base_data
-
-
 def get_file_from_db(name):
-    path = base_data_store+"/"+name
-    print("opening",path)
+    path = get_root_dir() + "/" + name
+    print("opening", path)
     return path
     # return open(path, 'rb').read()
 
 
-def get_llm():
-    return LLM_MODEL
-
-
 def get_know_base():
-    return next(os.walk(base_data_store))[1]
+    return next(os.walk(get_root_dir()))[1]
 
 
 # Example usage, if this script is run directly
 if __name__ == '__main__':
-    run_privateGPT("C:/chatWithJafu",  'C:/chatWithJafu/_db')
-
-
+    run_private_gpt("C:/chatWithJafu", 'C:/chatWithJafu/_db')
