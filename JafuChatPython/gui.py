@@ -3,6 +3,15 @@ from tkinter import filedialog, scrolledtext
 from subprocess import Popen, PIPE
 import os
 
+import os
+
+# Relative paths
+relative_python_exe_path = "venv/Scripts/python.exe"
+relative_main_py_path = "main.py"
+
+# Get absolute paths
+absolute_python_exe_path = os.path.abspath(relative_python_exe_path)
+absolute_main_py_path = os.path.abspath(relative_main_py_path)
 
 class MainApplication(tk.Frame):
     def __init__(self, master=None):
@@ -11,7 +20,7 @@ class MainApplication(tk.Frame):
         self.pack()
         self.create_widgets()
         self.dir = "E:/docs/"
-        self.cmd = "E:/docs/chatJafu/venv/Scripts/python.exe E:/docs/chatJafu/main.py"
+        self.cmd = absolute_python_exe_path + ' ' + absolute_main_py_path
         self.process = None
 
     def create_widgets(self):

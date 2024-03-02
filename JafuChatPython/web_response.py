@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, send_file
 from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db, get_know_base, get_llm
 from configuration import get_base_dir, get_port
 import webbrowser
-
+from select_folder import change_folder_path_with_dp_change
 from utilsOllama import get_models
 
 app = Flask(__name__)
@@ -88,6 +88,16 @@ def ref_to_string(base, file, page_number):
         return f'<a href="{name}">{file}</a>'
     return f'<a href="{name}#page={page_number}">{file}({page_number})</a>'
 
+
+# =============================================
+@app.route('/life', methods=['GET', 'POST'])
+def change_folder_path_with_dp():
+    folder_path_changed = change_folder_path_with_dp_change()  # Assuming the folder path is changed successfully
+    if folder_path_changed:
+        return "Folder path changed successfully"
+    else:
+        return "Failed to change folder path"
+# =============================================
 
 if __name__ == '__main__':
     # setup_llm("demo")

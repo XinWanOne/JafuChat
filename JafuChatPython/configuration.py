@@ -1,13 +1,19 @@
 import os
+import json
 
-FOLDER_PATH = "C:/Users/white/Documents/GitHub/chatJafu/exmples/demo"
+# Load the existing JSON file
+json_file_path = "data.json"
+with open(json_file_path, "r") as json_file:
+    data = json.load(json_file)
 
-base_data = "demo"
+FOLDER_PATH = data['FOLDER_PATH']
 
-base_data_store = "C:/Users/white/Documents/GitHub/chatJafu/exmples/"
+base_data = data['base_data']
+
+base_data_store = data['base_data_store']
 
 # Options include various models like "mistral", "dolphin-mixtral", "tinyllama", "llama2", "llava"
-LLM_MODEL = "mistral"
+LLM_MODEL = data['LLM_MODEL']
 
 
 def get_model():
@@ -24,7 +30,8 @@ def get_llm():
 
 
 def get_db(base):
-    return base_data_store + base + "/_db"
+    print(os.path.join(base_data_store,base,"_db"))
+    return os.path.join(base_data_store,base,"_db")
 
 
 def get_base_dir():
