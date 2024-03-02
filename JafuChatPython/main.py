@@ -2,11 +2,9 @@ import os, shutil
 import sys
 
 import jafuGPT
-from jafuGPT import run_privateGPT
+from jafuGPT import run_private_gpt
 from ingest import ingest_files as ingest
 
-# FOLDER_PATH = "C:/chatWithJafu/java8book-2172125.pdf"
-FOLDER_PATH = "C:/Users/white/Documents/GitHub/chatJafu/exmples/demo"
 DB_DIR = "_db"
 
 def main(folder_path):
@@ -19,7 +17,7 @@ def main(folder_path):
     print(f"Answering questions about contents in \"{folder_path}\".")
     print("Type \"quit\" to exit.")
     print("\nEnter a query: ")
-    run_privateGPT(folder_path,db)
+    run_private_gpt(folder_path, db)
 
 
 if __name__ == "__main__":
