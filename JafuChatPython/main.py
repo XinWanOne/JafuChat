@@ -3,14 +3,14 @@ import sys
 
 import jafuGPT
 from jafuGPT import run_private_gpt
-from ingest import ingest_files as ingest
+from ingest import ingest_files
 
 DB_DIR = "_db"
 
 def main(folder_path):
     db = os.path.join(folder_path, DB_DIR)
     if not os.path.exists(db):
-        ingest(folder_path,db)
+        ingest_files(folder_path,db)
     print()
     print("Welcome to Chat With Jafu!")
     print(f"Using LLM model: {jafuGPT.model}.")

@@ -67,7 +67,7 @@ chunk_overlap = 50
 # Mapping of file extensions to their respective document loaders
 LOADER_MAPPING = {
     ".csv": (CSVLoader, {}),
-    ".doc": (UnstructuredWordDocumentLoader, {}),
+    ".default_folder": (UnstructuredWordDocumentLoader, {}),
     ".docx": (UnstructuredWordDocumentLoader, {}),
     ".enex": (EverNoteLoader, {}),
     ".epub": (UnstructuredEPubLoader, {}),
