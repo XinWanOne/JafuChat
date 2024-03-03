@@ -9,6 +9,7 @@
 #
 import requests
 import psutil
+import subprocess
 
 
 def check_if_ollama_is_running():
@@ -35,7 +36,13 @@ def getListOfModels():
         print("Failed to connect to Ollama. It might not be running.")
 
 
-def get_models():
+def format_size(size):
+    if size > (1024*1024*1024):
+        return "{:.1f}GB".format(size/(1024*1024*1024))
+    return "{:.1f}MB".format(size/(1024*1024))
+
+
+def get_models(current):
     url = "http://localhost:11434/api/tags"
     try:
         response = requests.get(url)
@@ -45,7 +52,11 @@ def get_models():
             print(resp_jason['models'])
             models = []
             for m in resp_jason['models']:
-                models.append({'name': m['name'], 'size': m['size']})
+
+                    models.append({'name': m['name'],
+                                   'size': format_size(m['size']),
+                                   'selected': (m['name'] == current)
+                                   })
             return models
         else:
             print("Ollama responded, but there might be an issue:", response.status_code)
@@ -54,6 +65,13 @@ def get_models():
         print("Failed to connect to Ollama. It might not be running.")
 
 
+# if not running, run ollama
+def ollama_run_if_not():
+    if check_if_ollama_is_running():
+        print("ollama was running")
+        return True
+    print("running ollama serve...")
+    subprocess.Popen(["ollama", "serve"])
 
 def test_ollama_endpoint():
     url = "http://localhost:11434/api/tags"  # Example URL, adjust based on your setup
@@ -73,6 +91,7 @@ def test_ollama_endpoint():
 
 
 if __name__ == '__main__':
+    ollama_run_if_not()
     if check_if_ollama_is_running():
         print("Ollama process is running.")
         getListOfModels()

@@ -43,7 +43,8 @@
 </head>
 <body>
     <h2><img width="24" height="24" style="margin-top:10px;" src="{{ url_for('static', filename='images/logo.png') }}">
-        JafuChat ({{base}})</h2>
+        JafuChat ({{base}})   <span style="float:right;margin-right:10px">
+  <a href="./?settings=base">⚙</a>  </span></h2>
 
         <p>
             {% for link in links %}
@@ -53,9 +54,9 @@
 
 
               <small class="text-muted">
-             <a href="./?settings=model">Using</a>
+             Using
 
-             {{model}}</small>
+                  <i>{{model}}</i></small>
 
 
     </span>

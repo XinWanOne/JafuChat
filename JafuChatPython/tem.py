@@ -4,7 +4,7 @@ data = {
     "FOLDER_PATH": "default_folder",
     "base_data": "demo",
     "base_data_store": "default_folder",
-    "LLM_MODEL": get_models()[0]['name']
+    "LLM_MODEL": get_models("")[0]['name']
 }
 
 # Specify the path for the JSON file

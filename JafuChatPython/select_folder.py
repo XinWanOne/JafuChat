@@ -5,6 +5,10 @@ import sys
 import platform
 import os
 
+from configuration import get_config_file, configure, initial_setup, set_selected_folder
+
+
+# using TK for now
 def open_folder():
     root = tk.Tk()
     top = tk.Toplevel(root)
@@ -24,21 +28,26 @@ def open_folder():
 
 # Load the existing JSON file
 
-json_file_path = "data.json"
+# json_file_path = "data.json"
+
+
 def change_folder_path_with_dp_change():
-    with open(json_file_path, "r") as json_file:
-        data = json.load(json_file)
-    selected_folder = open_folder()
-    if selected_folder:
-        folder_path, folder_name = os.path.split(selected_folder)
-        data['FOLDER_PATH'] = selected_folder
-        data['base_data'] = folder_name
-        data['base_data_store'] = folder_path
-        with open(json_file_path, "w") as json_file:
-            json.dump(data, json_file, indent=4)
+    # with open(json_file_path, "r") as json_file:
+    #     data = json.load(json_file)
+    data = {}
+    folder = open_folder()
+    if folder:
+        set_selected_folder(folder)
         return True
     else:
         return False
+
+
+def initial_setup_with_select():
+    if configure():
+        return
+    db_folder = open_folder()
+    initial_setup(db_folder)
 
 
 if __name__ == '__main__':
