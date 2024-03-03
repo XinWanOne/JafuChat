@@ -1,8 +1,6 @@
 import tkinter as tk
-from tkinter import filedialog, scrolledtext
+from tkinter import scrolledtext
 from subprocess import Popen, PIPE
-import os
-
 import os
 
 # Relative paths

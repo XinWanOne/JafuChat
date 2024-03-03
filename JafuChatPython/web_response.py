@@ -1,16 +1,17 @@
 from flask import Flask, request, jsonify, render_template, send_file
 from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db, get_know_base, get_llm
-from configuration import get_base_dir, get_port
+from configuration import get_base_dir, get_port, get_root_dir, set_model
 import webbrowser
-from select_folder import change_folder_path_with_dp_change
-from utilsOllama import get_models
+
+from select_folder import initial_setup_with_select, change_folder_path_with_dp_change
+from utilsOllama import get_models, ollama_run_if_not
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def index():
-    if 'settings' in  request.args:
+    if 'settings' in request.args:
         print("index", request.args['settings'])
         return settings(request.args['settings'])
     links = get_links()
@@ -18,11 +19,23 @@ def index():
     return render_template('./index.html', base=get_base_dir(), links=links, model=llm)
 
 
-def settings(foo):
+def settings(type):
+    if type == "model":
+        new_model = request.args['model']
+        print("new model = ", new_model)
+        set_model(new_model)
+    if type == "dir":
+        folder_path_changed = change_folder_path_with_dp_change()  # Assuming the folder path is changed successfully
+
     links = get_links()
     llm = get_llm()
-    models = get_models()
-    return render_template('./pick_model.html', base=get_base_dir(), models=models, model=llm)
+    models = get_models(llm)
+    return render_template('./settings.html',
+                           base=get_base_dir(),
+                           root=get_root_dir(),
+                           models=models,
+                           links=links,
+                           model=llm)
 
 
 @app.route("/<string:path>")
@@ -101,6 +114,8 @@ def change_folder_path_with_dp():
 
 if __name__ == '__main__':
     # setup_llm("demo")
+    ollama_run_if_not()
+    initial_setup_with_select()
     webbrowser.open_new("http://127.0.0.1:" + str(get_port()))
     print("launch browser")
     # app.run(debug=True)

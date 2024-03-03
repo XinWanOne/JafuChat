@@ -53,13 +53,30 @@
             <p style="max-width: 400px;"> Select one that one:
             </p>
             <p>
-                 <ul>
+             <table>
                 {% for m in models %}
-                 <li> {{ m.name }} {{ m.size }} </li>
+                 <tr>
+                 <td><a href="./?settings=model&model={{ m.name }}">{{ m.name }}</a> </td><td align="right"> {{ m.size }}</td>
+                      {% if m.selected  %}
+                  <td> ✔️ </td>
+                 {% else %}
+                <td> </td>
+               {% endif %}
+                 </tr>
                {% endfor %}
-             </ul>
+        </table>
             </p>
         </div>
+
+
+         <h3>Shelves</h3>
+         shelves in Library: {{ root }} (<a href="./?settings=dir">Change</a>)
+         <ul>
+         {% for link in links %}
+              <li>  {{ link.text }} </li>
+            {% endfor %}
+          </ul>
+
     </div>
      <form method="POST">
         <select name="name">

@@ -1,11 +1,16 @@
+import platform
+import sys
 import tkinter as tk
 from tkinter import filedialog
-import json
-import sys
-import platform
 import os
+from configuration import configure, initial_setup, set_selected_folder
 
+
+# using TK for now
 def open_folder():
+    """
+    Gets the folder path by creating an explore window
+    """
     root = tk.Tk()
     top = tk.Toplevel(root)
     top.attributes('-topmost', True)
@@ -15,30 +20,36 @@ def open_folder():
     arguments = sys.argv[1:]
     if len(arguments) > 0:
         initial_dir = arguments[0]
-    folder_path = filedialog.askdirectory(parent=parent, initialdir=initial_dir)
+    folder_path = filedialog.askopenfilename(parent=parent, initialdir=initial_dir)
     top.destroy()
     root.destroy()
     if not folder_path:
         return False
-    return folder_path
 
-# Load the existing JSON file
+    # Check if the selected path is a folder
+    if os.path.isdir(folder_path):
+        return folder_path
+    else:
+        return False
 
-json_file_path = "data.json"
+
 def change_folder_path_with_dp_change():
-    with open(json_file_path, "r") as json_file:
-        data = json.load(json_file)
-    selected_folder = open_folder()
-    if selected_folder:
-        folder_path, folder_name = os.path.split(selected_folder)
-        data['FOLDER_PATH'] = selected_folder
-        data['base_data'] = folder_name
-        data['base_data_store'] = folder_path
-        with open(json_file_path, "w") as json_file:
-            json.dump(data, json_file, indent=4)
+    # with open(json_file_path, "r") as json_file:
+    #     data = json.load(json_file)
+    # data = {}
+    folder = open_folder()
+    if folder:
+        set_selected_folder(folder)
         return True
     else:
         return False
+
+
+def initial_setup_with_select():
+    if configure():
+        return
+    db_folder = open_folder()
+    initial_setup(db_folder)
 
 
 if __name__ == '__main__':
