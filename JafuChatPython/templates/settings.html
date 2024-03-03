@@ -43,14 +43,14 @@
 </head>
 <body>
     <h2><img width="24" height="24" style="margin-top:10px;" src="{{ url_for('static', filename='images/logo.png') }}">
-        Select Model</h2>
-    <h2>(currently using {{model}})</h2>
+        Settings</h2>
+    <h2>Current Large Language Model: {{model}}</h2>
 
 
     <div id="answerContainer" class="content">
         <div id="introduction" class="content">
             <h3>Theses are the models loaded into Ollama</h3>
-            <p style="max-width: 400px;"> Select one that one:
+            <p style="max-width: 400px;"> Select one:
             </p>
             <p>
              <table>
@@ -78,17 +78,7 @@
           </ul>
 
     </div>
-     <form method="POST">
-        <select name="name">
-            {% for m in models %}
-                <option value="{{  m.name }}">{{  m.name }} {{  m.size }}</option>
-            {% endfor %}
-        </select>
-          {% if model %}
-        <p>You selected: {{ model }}</p>
-    {% endif %}
-        <button type="submit">Submit</button>
-    </form>
+
     <!-- Include any JavaScript code here -->
     <script>
         document.getElementById('qaForm').addEventListener('submit', async function(event) {

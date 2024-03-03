@@ -1,3 +1,22 @@
+__copyright__ = """
+
+    Copyright 2024 Jason Hoford
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+"""
+__license__ = "Apache 2.0"
+
 # from langchain.llms import Ollama
 #
 #
@@ -10,7 +29,7 @@
 import requests
 import psutil
 import subprocess
-
+import shutil
 
 def check_if_ollama_is_running():
     for proc in psutil.process_iter(['name']):
@@ -71,7 +90,10 @@ def ollama_run_if_not():
         print("ollama was running")
         return True
     print("running ollama serve...")
-    subprocess.Popen(["ollama", "serve"])
+    try:
+        subprocess.Popen(["ollama", "serve"])
+    except subprocess.CalledProcessError:
+        print("ollama may not be installed")
 
 def test_ollama_endpoint():
     url = "http://localhost:11434/api/tags"  # Example URL, adjust based on your setup
@@ -89,8 +111,15 @@ def test_ollama_endpoint():
 # Assuming you have already checked that Ollama is installed
 
 
-
 if __name__ == '__main__':
+    print('ollama > ', shutil.which("ollama"))
+    # try:
+    #     subprocess.Popen(["ollamass", "serve"])
+    # except subprocess.CalledProcessError:
+    #     print("fail")
+    #     exit(0)
+    # print("just went on")
+
     ollama_run_if_not()
     if check_if_ollama_is_running():
         print("Ollama process is running.")
