@@ -195,3 +195,23 @@ def set_config_file(file):
     FOLDER_PATH = data[INDEX_FOLDER_PATH]
     base_data = data[INDEX_BASE_DATA]
     base_data_store = data[INDEX_BASE_DATA_STORE]
+
+
+def get_know_base():
+    return next(os.walk(get_root_dir()))[1]
+
+
+def get_shelves():
+    base = get_root_dir()
+    shelves = next(os.walk(base))[1]
+    library = []
+    for shelf in shelves:
+        dir = os.path.join(base, shelf)
+        books = next(os.walk(dir))[2]
+        s = "\n".join(str(x) for x in books)
+        library.append({"name": shelf, "count": len(books), 'books': s})
+    return library
+
+if __name__ == '__main__':
+    configure()
+    print(get_shelves())

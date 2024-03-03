@@ -38,7 +38,9 @@
           flex-grow: 1;
           box-sizing: border-box; /* Ensures padding does not increase the width */
         }
-
+        .a :click {
+           background-color:rgba(255, 0, 0, 0.788);
+        }
     </style>
 </head>
 <body>
@@ -71,11 +73,17 @@
 
          <h3>Shelves</h3>
          shelves in Library: {{ root }} (<a href="./?settings=dir">Change</a>)
-         <ul>
-         {% for link in links %}
-              <li>  {{ link.text }} </li>
+          <table>
+         {% for shelf in shelves %}
+              <tr>
+                  <td>   {{ shelf.name }} </td>
+                  <td align="right">  {{shelf.count}}</td>
+              <td> <img height="12" src="{{ url_for('static', filename='images/view_list.png') }}"
+                        title="{{shelf.books}}"> </td> <td>
+                  <a style="text-decoration:none"  href="./?settings=rebuild&shelf={{ shelf.name }}" title="{{shelf.books}}">build</a></td>
+           </tr>
             {% endfor %}
-          </ul>
+          </table>
 
     </div>
 
