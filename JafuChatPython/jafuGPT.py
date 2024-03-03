@@ -18,13 +18,12 @@ __copyright__ = """
 __license__ = "Apache 2.0"
 
 # Import necessary modules from langchain and other libraries
-import io
 
 from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.llms import Ollama
-from configuration import get_llm, get_model, get_db, get_root_dir
+from configuration import get_model, get_db, get_root_dir
 
 import os
 import time
@@ -131,10 +130,6 @@ def get_file_from_db(name):
     print("opening", path)
     return path
     # return open(path, 'rb').read()
-
-
-def get_know_base():
-    return next(os.walk(get_root_dir()))[1]
 
 
 # Example usage, if this script is run directly

@@ -17,6 +17,10 @@ __copyright__ = """
 """
 __license__ = "Apache 2.0"
 
+import shutil
+
+from configuration import get_root_dir, get_db
+
 """Script Overview At its core, the script is designed to automate the conversion of raw documents from various
 formats into a structured, queryable format. This process encompasses several steps: identifying and loading
 documents, extracting and preprocessing the text, generating embeddings, and storing these embeddings in a vector
@@ -178,5 +182,16 @@ def ingest_files(source_directory, persist_directory):
     else:
         print("No documents to ingest.")
 
+
+def rebuild_shelf(shelf):
+    src = os.path.join(get_root_dir(), shelf)
+    db = get_db(shelf)
+    shutil.rmtree(db)
+    print("building db....")
+    ingest_files(src, db)
+    print("done")
+
+
 if __name__ == '__main__':
-    ingest_files("C:/Users/white/Documents/GitHub/chatJafu/exmples/demo","C:/Users/white/Documents/GitHub/chatJafu/exmples/demo/_db")
+    ingest_files("C:/Users/white/Documents/GitHub/chatJafu/exmples/demo",
+                 "C:/Users/white/Documents/GitHub/chatJafu/exmples/demo/_db")

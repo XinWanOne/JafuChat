@@ -18,8 +18,10 @@ __copyright__ = """
 __license__ = "Apache 2.0"
 
 from flask import Flask, request, jsonify, render_template, send_file
-from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db, get_know_base, get_llm
-from configuration import get_base_dir, get_port, get_root_dir, set_model
+
+from ingest import rebuild_shelf
+from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db
+from configuration import get_base_dir, get_port, get_root_dir, set_model, get_know_base, get_llm, get_shelves
 import webbrowser
 import shutil
 from select_folder import initial_setup_with_select, change_folder_path_with_dp_change
@@ -47,15 +49,18 @@ def settings(type):
         set_model(new_model)
     if type == "dir":
         folder_path_changed = change_folder_path_with_dp_change()  # Assuming the folder path is changed successfully
+    if type == "rebuild":
+        shelf = request.args['shelf']
+        rebuild_shelf(shelf)  # Assuming the folder path is changed successfully
 
-    links = get_links()
     llm = get_llm()
+    shelves = get_shelves()
     models = get_models(llm)
     return render_template('./settings.html',
                            base=get_base_dir(),
                            root=get_root_dir(),
                            models=models,
-                           links=links,
+                           shelves=shelves,
                            model=llm)
 
 
