@@ -17,18 +17,20 @@ __copyright__ = """
 """
 __license__ = "Apache 2.0"
 
+import platform
+import sys
+
 import tkinter as tk
 from tkinter import filedialog
-import json
-import sys
-import platform
 import os
-
-from configuration import get_config_file, configure, initial_setup, set_selected_folder
+from configuration import configure, initial_setup, set_selected_folder
 
 
 # using TK for now
 def open_folder():
+    """
+    Gets the folder path by creating an explore window
+    """
     root = tk.Tk()
     top = tk.Toplevel(root)
     top.attributes('-topmost', True)
@@ -38,23 +40,26 @@ def open_folder():
     arguments = sys.argv[1:]
     if len(arguments) > 0:
         initial_dir = arguments[0]
-    folder_path = filedialog.askdirectory(parent=parent, initialdir=initial_dir)
+    folder_path = filedialog.askopenfilename(parent=parent, initialdir=initial_dir)
     top.destroy()
     root.destroy()
     if not folder_path:
         return False
-    return folder_path
-
 
 # Load the existing JSON file
-
 # json_file_path = "data.json"
+# Check if the selected path is a folder
+    if os.path.isdir(folder_path):
+        return folder_path
+    else:
+        return False
+
 
 
 def change_folder_path_with_dp_change():
     # with open(json_file_path, "r") as json_file:
     #     data = json.load(json_file)
-    data = {}
+    # data = {}
     folder = open_folder()
     if folder:
         set_selected_folder(folder)
