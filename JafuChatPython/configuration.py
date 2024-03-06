@@ -72,7 +72,7 @@ def get_root_dir():
 
 # The port the system runs on
 def get_port():
-    return 8080
+    return 8088
 
 
 def set_model(new_model):

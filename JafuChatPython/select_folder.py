@@ -40,7 +40,7 @@ def open_folder():
     arguments = sys.argv[1:]
     if len(arguments) > 0:
         initial_dir = arguments[0]
-    folder_path = filedialog.askopenfilename(parent=parent, initialdir=initial_dir)
+    folder_path = filedialog.askdirectory(parent=parent, title="Select shelf in lib", initialdir=initial_dir)
     top.destroy()
     root.destroy()
     if not folder_path:
