@@ -42,7 +42,15 @@ Follow these simple steps to embark on your JafuChat journey:
 Dive into the capabilities of JafuChat and discover the insights it can provide. For a visual guide, check out our tutorials:
 
 - **[Comming soon 👷]( )**
- 
+
+![image](https://github.com/Jason-Hoford/JafuChat/assets/10690435/33086bb8-af3e-4758-9292-e540cbab52a2)
+**Sample query of a book on Python**
+
+![image](https://github.com/Jason-Hoford/JafuChat/assets/10690435/ac06f3d9-8ba5-440a-90aa-4242c59a4508)
+**Sample Settings page**
+
+
+
 
 ## 💡 Contribute to the Project
 
