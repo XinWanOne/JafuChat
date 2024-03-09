@@ -18,6 +18,7 @@ __copyright__ = """
 __license__ = "Apache 2.0"
 
 from flask import Flask, request, jsonify, render_template, send_file
+import markdown
 
 from ingest import rebuild_shelf
 from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db
@@ -102,7 +103,7 @@ def process_query():
 
     # Process the query using your Python script
     answer, docs = get_answer_from_gpt(query, base)
-    out = answer
+    out = markdown.markdown(answer, extensions=['fenced_code', 'codehilite'])
     if len(docs) > 0:
         out += "<ul>\n"
         for d in docs:

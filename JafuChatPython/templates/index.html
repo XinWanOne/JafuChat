@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retrieval-based QA</title>
+    <title>JafuChat ({{base}})</title>
+
     <!-- Include any CSS stylesheets here -->
     <style>
         body, html {
@@ -16,17 +17,21 @@
            margin-left: 10px;
            margin-top: 0px;
         }
+        .titleArea {
+          background: #ffddd2;
+        }
         .content {
           flex: 1;
           overflow-y: auto;
           padding: 20px;
-          background: #f0f0f0; /* Light grey background */
+          background: #edf6f9; /* Light grey background */
         }
         .input-container {
           padding: 10px;
           display: flex;
-          margin-bottom: 10px;
-          background: #ddd; /* Slightly darker grey background */
+          margin: 10px;
+          border-radius: 10px;
+          background: #e29578; /* Slightly darker grey background */
         }
         label {
           align-self: center;
@@ -41,7 +46,8 @@
 
     </style>
 </head>
-<body>
+<body >
+ <div id="headSpace" class="titleArea">
     <h2><img width="24" height="24" style="margin-top:10px;" src="{{ url_for('static', filename='images/logo.png') }}">
         JafuChat ({{base}})   <span style="float:right;margin-right:10px">
   <a href="./?settings=base">⚙</a>  </span></h2>
@@ -61,7 +67,12 @@
 
     </span>
         </p>
-
+    <form id="qaForm" class="input-container">
+        <label for="query">Question:</label>
+        <input type="text" id="query" name="query" placeholder="Ask JafuChat about '{{base}}'"><br>
+        <button type="submit" id="submitButton">Submit</button>
+    </form>
+ </div>
     <div id="answerContainer" class="content">
         <div id="introduction" class="content">
             <h3>Welcome to Jason's AI For You chat (JafuChat)</h3>
@@ -78,15 +89,12 @@
 
         </div>
     </div>
-    <form id="qaForm" class="input-container">
-        <label for="query">Question:</label>
-        <input type="text" id="query" name="query" placeholder="Ask JafuChat about '{{base}}'"><br>
-        <button type="submit" id="submitButton">Submit</button>
-    </form>
+
 
 
     <!-- Include any JavaScript code here -->
     <script>
+
         document.getElementById('qaForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             let query = document.getElementById('query').value.trim();
@@ -123,6 +131,8 @@
 
             let introductionContainer = document.getElementById('introduction');
             introductionContainer.style.display= "none";
+
+
             let answerContainer = document.getElementById('answerContainer');
             answerContainer.innerHTML =
              answerContainer.innerHTML + `
