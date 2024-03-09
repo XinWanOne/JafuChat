@@ -16,17 +16,20 @@
            margin-left: 10px;
            margin-top: 0px;
         }
+        .titleArea {
+          background: #ffddd2;
+        }
         .content {
           flex: 1;
           overflow-y: auto;
           padding: 20px;
-          background: #f0f0f0; /* Light grey background */
+          background: #edf6f9; /* Light grey background */
         }
         .input-container {
           padding: 10px;
           display: flex;
           margin-bottom: 10px;
-          background: #ddd; /* Slightly darker grey background */
+          background: #e29578; /* Slightly darker grey background */
         }
         label {
           align-self: center;
@@ -41,14 +44,18 @@
         .a :click {
            background-color:rgba(255, 0, 0, 0.788);
         }
+        .notBold{
+           font-weight:normal
+        }
     </style>
 </head>
 <body>
+ <div id="headSpace" class="titleArea">
     <h2><img width="24" height="24" style="margin-top:10px;" src="{{ url_for('static', filename='images/logo.png') }}">
         Settings</h2>
-    <h2>Current Large Language Model: {{model}}</h2>
+     <h2> <span class='notBold'>Current Model:</span>{{model}}</h2>
 
-
+ </div>
     <div id="answerContainer" class="content">
         <div id="introduction" class="content">
             <h3>Theses are the models loaded into Ollama</h3>
