@@ -20,9 +20,9 @@ __license__ = "Apache 2.0"
 # Import necessary modules from langchain and other libraries
 
 from langchain.chains import RetrievalQA
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.llms import Ollama
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_community.llms import Ollama
 from configuration import get_model, get_db, get_root_dir
 
 import os
