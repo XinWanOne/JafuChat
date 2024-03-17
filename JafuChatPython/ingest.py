@@ -186,7 +186,8 @@ def ingest_files(source_directory, persist_directory):
 def rebuild_shelf(shelf):
     src = os.path.join(get_root_dir(), shelf)
     db = get_db(shelf)
-    shutil.rmtree(db)
+    if os.path.exists(db):
+        shutil.rmtree(db)
     print("building db....")
     ingest_files(src, db)
     print("done")

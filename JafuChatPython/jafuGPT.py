@@ -17,6 +17,8 @@ __copyright__ = """
 """
 __license__ = "Apache 2.0"
 
+import gc
+
 # Import necessary modules from langchain and other libraries
 
 from langchain.chains import RetrievalQA
@@ -101,6 +103,18 @@ def setup_llm(base):
     llm = Ollama(model=get_model(), callbacks=[])
 
 
+def disconnect():
+    global llm
+    global retriever
+    object_methods = [method_name for method_name in dir(retriever)
+                      if callable(getattr(retriever, method_name))]
+    print(object_methods)
+    retriever = None
+    llm = None
+    gc.collect()
+
+
+
 def get_answer_from_gpt(query, base):
     global llm, retriever
     # Initialize the embeddings using HuggingFace's models
@@ -119,10 +133,17 @@ def get_answer_from_gpt(query, base):
 
     # Get the answer from the chain
     res = qa(query)
-    answer = res['result']
+    answer = res['result']  # + "\n\n### *Chinese*\n\n" + translate_to_chinese(res['result'])
     docs = res['source_documents']
     print(res.keys())
     return answer, docs
+
+
+# def translate_to_chinese(text):
+#     import ollama
+#     message = [{'role': 'user', 'content': '"'+text+'"  convert to Chinese do not output anything else'}]
+#     response = ollama.chat(model=get_model(),messages=message)
+#     return response['message']['content']
 
 
 def get_file_from_db(name):
