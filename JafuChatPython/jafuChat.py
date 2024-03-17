@@ -17,11 +17,16 @@ __copyright__ = """
 """
 __license__ = "Apache 2.0"
 
-from flask import Flask, request, jsonify, render_template, send_file
+import os
+import sys
+import threading
+import time
+
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
 import markdown
 
 from ingest import rebuild_shelf
-from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db
+from jafuGPT import get_answer_from_gpt, setup_llm, get_file_from_db, disconnect
 from configuration import get_base_dir, get_port, get_root_dir, set_model, get_know_base, get_llm, get_shelves
 import webbrowser
 import shutil
@@ -30,27 +35,32 @@ from utilsOllama import get_models, ollama_run_if_not
 
 app = Flask(__name__)
 
-
 # main html access typically renders index.html
 @app.route('/')
 def index():
     if 'settings' in request.args:
-        print("index", request.args['settings'])
         return settings(request.args['settings'])
     links = get_links()
     llm = get_llm()
     return render_template('./index.html', base=get_base_dir(), links=links, model=llm)
 
 
+@app.route('/favicon.ico')
+def favicon():
+    print("getting favicon")
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 # http calls involving /?settings=
-def settings(type):
-    if type == "model":
+def settings(settings_type):
+    if settings_type == "model":
         new_model = request.args['model']
         print("new model = ", new_model)
         set_model(new_model)
-    if type == "dir":
+    elif settings_type == "dir":
         folder_path_changed = change_folder_path_with_dp_change()  # Assuming the folder path is changed successfully
-    if type == "rebuild":
+    elif settings_type == "rebuild":
         shelf = request.args['shelf']
         rebuild_shelf(shelf)  # Assuming the folder path is changed successfully
 
@@ -68,7 +78,6 @@ def settings(type):
 # this and the next one are for :8080/<shelf>
 @app.route("/<string:path>")
 def doc_str(path):
-    print("doc_str", path)
     links = get_links()
     llm = get_llm()
     return render_template('./index.html', base=path, links=links, model=llm)
@@ -116,6 +125,13 @@ def process_query():
     return jsonify({'answer': out})
 
 
+def exit_in2sec(error=None):
+    time.sleep(3)
+    python = sys.executable  # Get the path of the current Python interpreter
+    print("restarting ", python)
+    print("calling", sys.argv[0])
+    os.system(python + "  " + sys.argv[0] + " --noOpen")  # Restart the program
+
 def get_links():
     list = get_know_base()
     links = []
@@ -150,10 +166,15 @@ if __name__ == '__main__':
         print("ollama not found!")
     ollama_run_if_not()
     initial_setup_with_select()
-    webbrowser.open_new("http://127.0.0.1:" + str(get_port()))
+    if len(sys.argv) > 1 and "--settings" == sys.argv[1]:
+        print("opening settings...")
+        webbrowser.open_new("http://127.0.0.1:" + str(get_port()) + "/?settings=base")
+    else:
+        webbrowser.open_new("http://127.0.0.1:" + str(get_port()))
     print("launch browser")
     # app.run(debug=True)
     print("run app infrastructure")
     from waitress import serve
 
+    print("running", sys.argv[0])
     serve(app, host="0.0.0.0", port=get_port())

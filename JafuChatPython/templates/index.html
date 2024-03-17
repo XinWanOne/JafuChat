@@ -45,6 +45,7 @@
         }
 
     </style>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 <body >
  <div id="headSpace" class="titleArea">
@@ -88,6 +89,7 @@
             </p>
 
         </div>
+
     </div>
 
 
@@ -119,12 +121,18 @@
         function disableForm() {
             document.getElementById('query').disabled = true;
             document.getElementById('submitButton').disabled = true;
+            let introductionContainer = document.getElementById('introduction');
+            introductionContainer.style.background = '#ddd6d9';
+            let answerContainer = document.getElementById('answerContainer');
+            answerContainer.style.background = '#ddd6d9';
         }
 
         function enableForm() {
-             document.getElementById('query').value = ''
+            document.getElementById('query').value = ''
             document.getElementById('query').disabled = false;
             document.getElementById('submitButton').disabled = false;
+            let answerContainer = document.getElementById('answerContainer');
+            answerContainer.style.background = '#edf6f9';
         }
 
         function displayAnswer(question,answer) {
