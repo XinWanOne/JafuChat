@@ -141,8 +141,11 @@ def get_links():
 
 
 def ref_to_string(base, file, page_number):
-    html_file = file.replace(" ", "%20")
-    name = base + "/" + html_file[html_file.rindex('\\') + 1:]
+    filename = os.path.basename(file)
+    html_name = filename.replace(" ", "%20")
+    # Extract the filename
+
+    name = base + "/" + html_name
     # return f'<a href="file:///{html_file}#page={page_number}">{file}({page_number})</a>'
     if page_number == -1:
         return f'<a href="{name}">{file}</a>'
