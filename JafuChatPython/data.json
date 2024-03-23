@@ -1,6 +1,0 @@
-{
-    "FOLDER_PATH": "C:/Users/jason/Downloads/data",
-    "base_data": "data",
-    "base_data_store": "C:/Users/jason/Downloads",
-    "LLM_MODEL": "mistral:latest"
-}
