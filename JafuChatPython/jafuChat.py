@@ -35,22 +35,32 @@ from utilsOllama import get_models, ollama_run_if_not
 
 app = Flask(__name__)
 
-# main html access typically renders index.html
+conversation_history = []
+
+@app.route('/api/clear_history', methods=['POST'])
+def clear_history():
+    global conversation_history
+    conversation_history = []  # Clear the conversation history
+    return jsonify({'status': 'success'})
+
+
+
+
+
 @app.route('/')
 def index():
+
     if 'settings' in request.args:
         return settings(request.args['settings'])
     links = get_links()
     llm = get_llm()
     return render_template('./index.html', base=get_base_dir(), links=links, model=llm)
 
-
 @app.route('/favicon.ico')
 def favicon():
     print("getting favicon")
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
-
 
 # http calls involving /?settings=
 def settings(settings_type):
@@ -74,7 +84,6 @@ def settings(settings_type):
                            shelves=shelves,
                            model=llm)
 
-
 # this and the next one are for :8080/<shelf>
 @app.route("/<string:path>")
 def doc_str(path):
@@ -82,14 +91,12 @@ def doc_str(path):
     llm = get_llm()
     return render_template('./index.html', base=path, links=links, model=llm)
 
-
 # this and the next one are for :8080/<shelf>
 @app.route("/<path:path>")
 def doc_path(path):
     print("doc_path", path)
     file = get_file_from_db(path)
     return send_file(file, "application/pdf")
-
 
 # old way of selecting models
 @app.route("/#<string:path>")
@@ -99,20 +106,47 @@ def select_models(path):
     llm = get_llm()
     return render_template('./index.html', base="demo", links=links, model=llm)
 
-
 # this is the post query that runs the code
 @app.route('/api/query', methods=['POST'])
 def process_query():
-    print("query")
+    global conversation_history
     query = request.json.get('query')
     base = request.json.get('base')
-    print("base:", base)
+
     if query is None:
         return jsonify({'error': 'Query not provided'}), 400
 
-    # Process the query using your Python script
-    answer, docs = get_answer_from_gpt(query, base)
+    # Read the system prompt from the file
+    system_prompt = None
+    prompt_file_name = f"{base}.txt"
+    prompt_file_path = os.path.join("prompts", prompt_file_name)
+
+    if os.path.exists(prompt_file_path):
+        with open(prompt_file_path, "r") as file:
+            system_prompt = file.read()
+
+    # Initialize conversation history with system prompt if it's the first query
+    if not conversation_history and system_prompt:
+        conversation_history.append(system_prompt)
+
+    # Add the latest query to the conversation history
+    conversation_history.append(query)
+
+    # Pass only the latest query to the model while keeping the context
+    # latest_context = " ".join([system_prompt, query]) if system_prompt else query
+    context = "\n".join(conversation_history)
+
+    # Process the latest query
+    answer, docs = get_answer_from_gpt(context, base)
     out = markdown.markdown(answer, extensions=['fenced_code', 'codehilite'])
+
+    # Add the model's response to the conversation history
+    conversation_history.append(answer)
+
+    # If necessary, truncate the conversation history to avoid memory issues
+    if len(conversation_history) > 20:  # You can adjust this number based on your needs
+        conversation_history = conversation_history[-20:]
+
     if len(docs) > 0:
         out += "<ul>\n"
         for d in docs:
@@ -122,8 +156,8 @@ def process_query():
                 number = d.metadata["page"]
             out = out + "<li>" + ref_to_string(base, src, number) + "</li>"
         out += "</ul>"
-    return jsonify({'answer': out})
 
+    return jsonify({'answer': out})
 
 def exit_in2sec(error=None):
     time.sleep(3)
@@ -139,20 +173,21 @@ def get_links():
         links.append({"href": "./" + dir, "text": dir})
     return links
 
-
 def ref_to_string(base, file, page_number):
     filename = os.path.basename(file)
     html_name = filename.replace(" ", "%20")
     # Extract the filename
 
     name = base + "/" + html_name
+
     # return f'<a href="file:///{html_file}#page={page_number}">{file}({page_number})</a>'
     if page_number == -1:
         return f'<a href="{name}">{file}</a>'
-    return f'<a href="{name}#page={page_number}">{file}({page_number})</a>'
-
+    return f'<a href="{name}#page={page_number+1}">{file}({page_number+1})</a>'
 
 # =============================================
+
+
 @app.route('/life', methods=['GET', 'POST'])
 def change_folder_path_with_dp():
     folder_path_changed = change_folder_path_with_dp_change()  # Assuming the folder path is changed successfully
@@ -161,7 +196,6 @@ def change_folder_path_with_dp():
     else:
         return "Failed to change folder path"
 # =============================================
-
 
 if __name__ == '__main__':
     # setup_llm("demo")

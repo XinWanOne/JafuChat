@@ -43,7 +43,10 @@
           flex-grow: 1;
           box-sizing: border-box; /* Ensures padding does not increase the width */
         }
-
+        button {
+          margin-left: 10px;
+          padding: 10px;
+        }
     </style>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
@@ -58,20 +61,17 @@
               <a href="{{ link.href }}">{{ link.text }}</a>
             {% endfor %}
            <span style="float:right;margin-right:10px">
-
-
               <small class="text-muted">
-             Using
-
-                  <i>{{model}}</i></small>
-
-
-    </span>
+                  Using
+                  <i>{{model}}</i>
+              </small>
+           </span>
         </p>
     <form id="qaForm" class="input-container">
         <label for="query">Question:</label>
         <input type="text" id="query" name="query" placeholder="Ask JafuChat about '{{base}}'"><br>
         <button type="submit" id="submitButton">Submit</button>
+        <button type="button" id="clearButton">Clear</button>
     </form>
  </div>
     <div id="answerContainer" class="content">
@@ -87,16 +87,11 @@
             <p><br><br>
                 Ask a question.
             </p>
-
         </div>
-
     </div>
-
-
 
     <!-- Include any JavaScript code here -->
     <script>
-
         document.getElementById('qaForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             let query = document.getElementById('query').value.trim();
@@ -104,23 +99,48 @@
 
             disableForm();
 
-            let response = await fetch('/api/query', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ query: query, base: "{{base}}" })
-            });
+            try {
+                let response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query, base: "{{base}}" })
+                });
 
-            let data = await response.json();
-            displayAnswer(query, data.answer);
+                let data = await response.json();
+                displayAnswer(query, data.answer);
 
-            enableForm();
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                enableForm();
+            }
         });
 
+        document.getElementById('clearButton').addEventListener('click', async function() {
+    try {
+        clearHistory();  // Clear the UI first
+
+        let response = await fetch('/api/clear_history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        let data = await response.json();
+        if (data.status !== 'success') {
+            console.error('Failed to clear history on server');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
         function disableForm() {
             document.getElementById('query').disabled = true;
             document.getElementById('submitButton').disabled = true;
+            document.getElementById('clearButton').disabled = true;
             let introductionContainer = document.getElementById('introduction');
             introductionContainer.style.background = '#ddd6d9';
             let answerContainer = document.getElementById('answerContainer');
@@ -131,15 +151,14 @@
             document.getElementById('query').value = ''
             document.getElementById('query').disabled = false;
             document.getElementById('submitButton').disabled = false;
+            document.getElementById('clearButton').disabled = false;
             let answerContainer = document.getElementById('answerContainer');
             answerContainer.style.background = '#edf6f9';
         }
 
-        function displayAnswer(question,answer) {
-
+        function displayAnswer(question, answer) {
             let introductionContainer = document.getElementById('introduction');
             introductionContainer.style.display= "none";
-
 
             let answerContainer = document.getElementById('answerContainer');
             answerContainer.innerHTML =
@@ -150,8 +169,31 @@
                 <p>${answer}</p>
             `;
             answerContainer.scrollTop = answerContainer.scrollHeight;
-
         }
+
+       function clearHistory() {
+    let answerContainer = document.getElementById('answerContainer');
+
+    if (answerContainer) {
+        answerContainer.innerHTML = `
+            <div id="introduction" class="content">
+                <h3>Welcome to Jason's AI For You chat (JafuChat)</h3>
+                <p style="max-width: 400px;">You can ask questions for the selected directory.
+                    The LLM will combine general knowledge with the content of the documents to provide the answer.
+                    It will list references within the documents where possible.
+                </p>
+                <p>
+                    <img src="{{ url_for('static', filename='images/big_logo.png') }}">
+                </p>
+                <p><br><br>
+                    Ask a question.
+                </p>
+            </div>
+        `;
+    } else {
+        console.error('Answer container not found');
+    }
+}
     </script>
 </body>
 </html>

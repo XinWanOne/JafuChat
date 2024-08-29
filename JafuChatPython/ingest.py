@@ -17,7 +17,7 @@ __copyright__ = """
 """
 __license__ = "Apache 2.0"
 
-import shutil
+
 
 from configuration import get_root_dir, get_db
 
@@ -81,11 +81,32 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
 from constants import CHROMA_SETTINGS
 
+import json
+import os
+
+# Load the configuration from config.json
+config_file_path = os.path.join(os.path.dirname(__file__), 'embeddingconfig.json')
+with open(config_file_path, 'r') as config_file:
+    config = json.load(config_file)
+
+# # Access the configuration values
+persist_directory = config.get('persist_directory', 'db')
+embeddings_model_name = config.get('embeddings_model_name', 'all-MiniLM-L6-v2')
+chunk_size = config.get('chunk_size', 500)
+chunk_overlap = config.get('chunk_overlap', 50)
+
+# Now you can use these variables in your code
+print(f"Persist Directory: {persist_directory}")
+print(f"Embeddings Model Name: {embeddings_model_name}")
+print(f"Chunk Size: {chunk_size}")
+print(f"Chunk Overlap: {chunk_overlap}")
+
 # Load essential environment variables for configuration
-persist_directory = os.environ.get('PERSIST_DIRECTORY', 'db')
-embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME', 'all-MiniLM-L6-v2')
-chunk_size = 500
-chunk_overlap = 50
+# persist_directory = os.environ.get('PERSIST_DIRECTORY', 'db')
+# embeddings_model_name = os.environ.get('EMBEDDINGS_MODEL_NAME', 'all-MiniLM-L6-v2')
+#
+# chunk_size = 500
+# chunk_overlap = 50
 
 # Mapping of file extensions to their respective document loaders
 LOADER_MAPPING = {
@@ -156,7 +177,8 @@ def does_vectorstore_exist(persist_directory: str) -> bool:
 
 def ingest_files(source_directory, persist_directory):
     """Main function to ingest files into the vectorstore."""
-    embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    # embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
+    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
     if does_vectorstore_exist(persist_directory):
         db = Chroma(persist_directory=persist_directory, embedding_function=embeddings, client_settings=CHROMA_SETTINGS)
         collection = db.get()
@@ -186,8 +208,8 @@ def ingest_files(source_directory, persist_directory):
 def rebuild_shelf(shelf):
     src = os.path.join(get_root_dir(), shelf)
     db = get_db(shelf)
-    if os.path.exists(db):
-        shutil.rmtree(db)
+    # if os.path.exists(db):
+    #     shutil.rmtree(db)
     print("building db....")
     ingest_files(src, db)
     print("done")

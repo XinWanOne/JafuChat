@@ -1,0 +1,6 @@
+{
+    "persist_directory": "db",
+    "embeddings_model_name": "all-MiniLM-L6-v2",
+    "chunk_size": 500,
+    "chunk_overlap": 50
+}
