@@ -32,6 +32,10 @@ import webbrowser
 import shutil
 from select_folder import initial_setup_with_select, change_folder_path_with_dp_change
 from utilsOllama import get_models, ollama_run_if_not
+from datetime import datetime
+import os
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
+
 
 app = Flask(__name__)
 
@@ -45,6 +49,49 @@ def clear_history():
 
 
 
+
+
+@app.route('/api/feedback', methods=['POST'])
+def process_feedback():
+    feedback_data = request.json
+    # feedback_data will contain:
+    # - question
+    # - answer
+    # - answer_accuracy (list)
+    # - answer_completeness (list)
+    # - reference_accuracy (list)
+    # - reference_completeness (list)
+    # - comments
+
+    # Get the current date
+    date_str = datetime.now().strftime('%Y-%m-%d')
+
+    # Define the directory to store feedback files
+    feedback_dir = 'feedback'  # Create a 'feedback' directory in your project root
+
+    if not os.path.exists(feedback_dir):
+        os.makedirs(feedback_dir)
+
+    # File path for today's feedback file
+    file_path = os.path.join(feedback_dir, f'{date_str}.txt')
+
+    # Prepare data to save
+    data_to_save = {
+        'timestamp': datetime.now().isoformat(),
+        'question': feedback_data.get('question'),
+        'answer': feedback_data.get('answer'),
+        'answer_accuracy': feedback_data.get('answer_accuracy'),
+        'answer_completeness': feedback_data.get('answer_completeness'),
+        'reference_accuracy': feedback_data.get('reference_accuracy'),
+        'reference_completeness': feedback_data.get('reference_completeness'),
+        'comments': feedback_data.get('comments')
+    }
+
+    # Append data to the file
+    with open(file_path, 'a') as f:
+        f.write(f"{data_to_save}\n---\n")
+
+    return jsonify({'status': 'success'})
 
 
 @app.route('/')
